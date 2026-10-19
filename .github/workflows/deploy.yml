@@ -37,6 +37,9 @@ jobs:
       - name: Compilar frontend
         run: npm run build
 
+      - name: Preparar rutas de React
+        run: cp dist/index.html dist/404.html
+
       - name: Configurar Pages
         uses: actions/configure-pages@v5
 
