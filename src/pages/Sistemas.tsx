@@ -21,7 +21,7 @@ interface PaymentItem {
   notes: string | null;
 }
 
-const API_URL = "http://127.0.0.1:8020";
+const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
 const ALL_MODULES = [
   "clientes", "proveedores", "productos", "stock", "pedidos", "entregas",
   "facturacion", "cuentas", "compras", "pos", "caja", "reportes",

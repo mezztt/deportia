@@ -27,7 +27,7 @@ interface ActivityItem {
   created_at: string;
 }
 
-const API_URL = "http://127.0.0.1:8020";
+const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
 
 function authHeaders() {
   const token = localStorage.getItem("velora_token");

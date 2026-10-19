@@ -65,7 +65,7 @@ function Customers() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        "http://127.0.0.1:8020/customers",
+        "https://locks-promised-method-hopes.trycloudflare.com/customers",
         {
           method: "GET",
 
@@ -214,8 +214,8 @@ function Customers() {
         editingCustomer !== null;
 
       const url = isEditing
-        ? `http://127.0.0.1:8020/customers/${editingCustomer.id}`
-        : "http://127.0.0.1:8020/customers";
+        ? `https://locks-promised-method-hopes.trycloudflare.com/customers/${editingCustomer.id}`
+        : "https://locks-promised-method-hopes.trycloudflare.com/customers";
 
       const response = await fetch(
         url,
@@ -302,7 +302,7 @@ function Customers() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8020/customers/${customer.id}`,
+        `https://locks-promised-method-hopes.trycloudflare.com/customers/${customer.id}`,
         {
           method: "DELETE",
 

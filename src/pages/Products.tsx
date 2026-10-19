@@ -55,7 +55,7 @@ function Products() {
     formData.append("file", file);
 
     const response = await fetch(
-      "http://127.0.0.1:8020/products/import/analyze",
+      "https://locks-promised-method-hopes.trycloudflare.com/products/import/analyze",
       {
         method: "POST",
         headers: {
@@ -181,7 +181,7 @@ async function importProductsToVelora() {
       localStorage.getItem("velora_token");
 
     const response = await fetch(
-      "http://127.0.0.1:8020/products/import",
+      "https://locks-promised-method-hopes.trycloudflare.com/products/import",
       {
         method: "POST",
         headers: {
@@ -247,7 +247,7 @@ async function importProductsToVelora() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        "http://127.0.0.1:8020/products",
+        "https://locks-promised-method-hopes.trycloudflare.com/products",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -333,8 +333,8 @@ async function importProductsToVelora() {
         editingProduct !== null;
 
       const url = isEditing
-        ? `http://127.0.0.1:8020/products/${editingProduct.id}`
-        : "http://127.0.0.1:8020/products";
+        ? `https://locks-promised-method-hopes.trycloudflare.com/products/${editingProduct.id}`
+        : "https://locks-promised-method-hopes.trycloudflare.com/products";
 
       const response = await fetch(url, {
         method: isEditing
@@ -400,7 +400,7 @@ async function importProductsToVelora() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        `http://127.0.0.1:8020/products/${product.id}`,
+        `https://locks-promised-method-hopes.trycloudflare.com/products/${product.id}`,
         {
           method: "DELETE",
 

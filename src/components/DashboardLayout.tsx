@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import VeloriaChat from "./veloria/VeloriaChat";
 import NotificationsBell from "./NotificationsBell";
 
-const API_URL = "http://127.0.0.1:8020";
+const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
 
 function authHeaders() {
   const token = localStorage.getItem("velora_token");
@@ -46,7 +46,7 @@ useEffect(() => {
 }, []);  
 
 useEffect(() => {
-  fetch("http://127.0.0.1:8020/company", {
+  fetch("https://locks-promised-method-hopes.trycloudflare.com/company", {
     headers: { Authorization: `Bearer ${localStorage.getItem("velora_token")}` },
   })
     .then((res) => res.json())
