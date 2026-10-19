@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  // Archivos viejos copiados de Velora que Deportia no usa (se pueden borrar)
+  "exclude": [
+    "src/pages/AdminLayout.tsx",
+    "src/pages/AdminSettings.tsx",
+    "src/pages/Caja.tsx",
+    "src/pages/Compras.tsx",
+    "src/pages/Configuracion.tsx",
+    "src/pages/Cuentascorrientes.tsx",
+    "src/pages/Customers.tsx",
+    "src/pages/Dashboard.tsx",
+    "src/pages/Entregas.tsx",
+    "src/pages/Facturacion.tsx",
+    "src/pages/PaymentsHistory.tsx",
+    "src/pages/POS.tsx",
+    "src/pages/Pedidos.tsx",
+    "src/pages/Products.tsx",
+    "src/pages/Proveedores.tsx",
+    "src/pages/Reportes.tsx",
+    "src/pages/Sistemas.tsx",
+    "src/pages/Stock.tsx",
+    "src/pages/Usuarios.tsx",
+    "src/components/DashboardLayout.tsx",
+    "src/components/veloria",
+    "src/components/VeloriaChat.tsx",
+    "src/pages/app/ComingSoon.tsx"
+  ]
+}
