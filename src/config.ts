@@ -1,6 +1,6 @@
 // Configuración compartida de Deportia
 // En local usa el backend de tu PC. Online se define VITE_API_URL al compilar (ver .env.example).
-export const API_URL = (import.meta.env.VITE_API_URL || "https://locks-promised-method-hopes.trycloudflare.com").replace(/\/$/, "");
+export const API_URL = (import.meta.env.VITE_API_URL || "https://api-deportia.mezztt.site").replace(/\/$/, "");
 
 export const APP_NAME = "Deportia";
 export const APP_VERSION = "1.0.0";

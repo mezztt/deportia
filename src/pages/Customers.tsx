@@ -65,7 +65,7 @@ function Customers() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        "https://locks-promised-method-hopes.trycloudflare.com/customers",
+        "https://api-deportia.mezztt.site/customers",
         {
           method: "GET",
 
@@ -214,8 +214,8 @@ function Customers() {
         editingCustomer !== null;
 
       const url = isEditing
-        ? `https://locks-promised-method-hopes.trycloudflare.com/customers/${editingCustomer.id}`
-        : "https://locks-promised-method-hopes.trycloudflare.com/customers";
+        ? `https://api-deportia.mezztt.site/customers/${editingCustomer.id}`
+        : "https://api-deportia.mezztt.site/customers";
 
       const response = await fetch(
         url,
@@ -302,7 +302,7 @@ function Customers() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        `https://locks-promised-method-hopes.trycloudflare.com/customers/${customer.id}`,
+        `https://api-deportia.mezztt.site/customers/${customer.id}`,
         {
           method: "DELETE",
 

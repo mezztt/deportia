@@ -70,7 +70,7 @@ interface WarehouseLite {
 
 type Tab = "pendientes" | "finalizados" | "cancelados";
 
-const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
+const API_URL = "https://api-deportia.mezztt.site";
 
 function authHeaders() {
   const token = localStorage.getItem("velora_token");

@@ -21,7 +21,7 @@ interface PaymentItem {
   notes: string | null;
 }
 
-const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
+const API_URL = "https://api-deportia.mezztt.site";
 const ALL_MODULES = [
   "clientes", "proveedores", "productos", "stock", "pedidos", "entregas",
   "facturacion", "cuentas", "compras", "pos", "caja", "reportes",

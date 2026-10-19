@@ -7,7 +7,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import "./VeloriaChat.css";
 
-const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
+const API_URL = "https://api-deportia.mezztt.site";
 
 interface VeloriaAction {
   type: string;

@@ -55,7 +55,7 @@ function Products() {
     formData.append("file", file);
 
     const response = await fetch(
-      "https://locks-promised-method-hopes.trycloudflare.com/products/import/analyze",
+      "https://api-deportia.mezztt.site/products/import/analyze",
       {
         method: "POST",
         headers: {
@@ -181,7 +181,7 @@ async function importProductsToVelora() {
       localStorage.getItem("velora_token");
 
     const response = await fetch(
-      "https://locks-promised-method-hopes.trycloudflare.com/products/import",
+      "https://api-deportia.mezztt.site/products/import",
       {
         method: "POST",
         headers: {
@@ -247,7 +247,7 @@ async function importProductsToVelora() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        "https://locks-promised-method-hopes.trycloudflare.com/products",
+        "https://api-deportia.mezztt.site/products",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -333,8 +333,8 @@ async function importProductsToVelora() {
         editingProduct !== null;
 
       const url = isEditing
-        ? `https://locks-promised-method-hopes.trycloudflare.com/products/${editingProduct.id}`
-        : "https://locks-promised-method-hopes.trycloudflare.com/products";
+        ? `https://api-deportia.mezztt.site/products/${editingProduct.id}`
+        : "https://api-deportia.mezztt.site/products";
 
       const response = await fetch(url, {
         method: isEditing
@@ -400,7 +400,7 @@ async function importProductsToVelora() {
         localStorage.getItem("velora_token");
 
       const response = await fetch(
-        `https://locks-promised-method-hopes.trycloudflare.com/products/${product.id}`,
+        `https://api-deportia.mezztt.site/products/${product.id}`,
         {
           method: "DELETE",
 

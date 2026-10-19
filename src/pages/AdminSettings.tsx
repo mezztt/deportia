@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 
-const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
+const API_URL = "https://api-deportia.mezztt.site";
 function authHeaders() {
   return { Authorization: `Bearer ${localStorage.getItem("velora_admin_token")}` };
 }

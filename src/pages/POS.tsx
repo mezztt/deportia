@@ -25,7 +25,7 @@ interface CartItem {
   unit_price: number;
 }
 
-const API_URL = "https://locks-promised-method-hopes.trycloudflare.com";
+const API_URL = "https://api-deportia.mezztt.site";
 
 function authHeaders() {
   const token = localStorage.getItem("velora_token");
