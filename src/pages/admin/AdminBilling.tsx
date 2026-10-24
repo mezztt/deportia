@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
+import QuoteFlowModal from "../../components/QuoteFlowModal";
 import BuzonCotizaciones from "../../components/BuzonCotizaciones";
 import { API_URL as BUZON_API } from "../../config";
 import { adminApi, usd, shortDate, splitList, calcPricing, calcPlans, ALL_MODULES, BILLABLE_MODULES, MODULE_LABELS } from "../../config";
 import type { BillingSettings, SystemItem } from "../../config";
 
 const QUOTE_STATUSES = ["TODAS", "BORRADOR", "ENVIADA", "ACEPTADA", "RECHAZADA"];
-const STATUS_LABEL = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
+const STATUS_LABEL = (s: string) => (s === "BORRADOR" ? "Nueva" : s.charAt(0) + s.slice(1).toLowerCase());
+const TAB_LABEL: Record<string, string> = { TODAS: "Todas", BORRADOR: "Nuevas", ENVIADA: "Enviadas", ACEPTADA: "Aceptadas", RECHAZADA: "Rechazadas" };
 
 function ModuleCheckbox({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) {
   return (
@@ -45,10 +47,6 @@ function AdminBilling() {
 
   // edición cotización
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
-  const [editModules, setEditModules] = useState<string[]>([]);
-  const [editIva, setEditIva] = useState(true);
-  const [editStatus, setEditStatus] = useState("BORRADOR");
-  const [savingQuote, setSavingQuote] = useState(false);
 
   // facturas
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
@@ -103,26 +101,6 @@ function AdminBilling() {
 
   function openQuote(q: any) {
     setSelectedQuote(q);
-    setEditModules(splitList(q.modules));
-    setEditIva(q.apply_iva);
-    setEditStatus(q.status);
-  }
-
-  async function saveQuote() {
-    if (!selectedQuote) return;
-    setSavingQuote(true);
-    try {
-      const updated = await adminApi(`/admin/quotes/${selectedQuote.id}`, {
-        method: "PUT",
-        body: { modules: editModules, apply_iva: editIva, status: editStatus },
-      });
-      setSelectedQuote(updated);
-      await load();
-    } catch {
-      alert("No se pudo guardar.");
-    } finally {
-      setSavingQuote(false);
-    }
   }
 
   /** Renglones del documento. La configuración solo va en el pago inicial (cotizaciones), nunca en la factura mensual. */
@@ -311,7 +289,7 @@ function AdminBilling() {
           <div className="product-actions" style={{ marginBottom: 12 }}>
             {QUOTE_STATUSES.map((s) => (
               <button key={s} className={quoteFilter === s ? "primary-button" : "secondary-button"} onClick={() => setQuoteFilter(s)}>
-                {s === "TODAS" ? "Todas" : STATUS_LABEL(s)}
+                {TAB_LABEL[s] || s}
               </button>
             ))}
           </div>
@@ -385,72 +363,25 @@ function AdminBilling() {
         </>
       )}
 
-      {/* MODAL COTIZACIÓN */}
+      {/* COTIZACIÓN: precio del POS y del pago único, envío por mail, aceptar/rechazar (QuoteFlowModal) */}
       {selectedQuote && (
-        <div className="modal-overlay" onClick={() => setSelectedQuote(null)}>
-          <div className="product-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div><span className="dashboard-eyebrow">COTIZACIÓN #{selectedQuote.id}</span><h2>{selectedQuote.business_name}</h2></div>
-              <button className="modal-close" onClick={() => setSelectedQuote(null)}>×</button>
-            </div>
-            <div className="product-form">
-              <div className="form-group"><label>Cliente</label><p>{selectedQuote.client_name}{selectedQuote.email ? ` — ${selectedQuote.email}` : ""}{selectedQuote.phone ? ` — ${selectedQuote.phone}` : ""}</p></div>
-              {(() => { const tg = quoteTags(selectedQuote.notes); return (<>{tg.uso && <div className="form-group"><label>Forma de uso</label><p>{tg.uso}</p></div>}{tg.pos && <div className="form-group"><label>POS pedido</label><p>{tg.pos}</p></div>}</>); })()}
-              {selectedQuote.notes && (
-                <div className="form-group"><label>Mensaje</label><p style={{ whiteSpace: "pre-wrap" }}>{selectedQuote.notes}</p></div>
-              )}
-              <div className="form-group">
-                <label>Módulos</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+        <QuoteFlowModal
+          quote={selectedQuote}
+          api={adminApi}
+          fmt={usd}
+          brandName="Deportia"
+          labelOf={(m: string) => MODULE_LABELS[m] || m}
+          renderModules={(c) => (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
                   {ALL_MODULES.map((m) => (
-                    <ModuleCheckbox key={m} label={MODULE_LABELS[m]} checked={editModules.includes(m)} onChange={() => setEditModules(toggle(editModules, m))} />
+                    <ModuleCheckbox key={m} label={MODULE_LABELS[m]} checked={c.value.includes(m)} onChange={() => c.onChange(toggle(c.value, m))} />
                   ))}
                 </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Estado</label>
-                  <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
-                    {QUOTE_STATUSES.slice(1).map((s) => <option key={s} value={s}>{STATUS_LABEL(s)}</option>)}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>IVA</label>
-                  <ModuleCheckbox label="Aplicar IVA 21%" checked={editIva} onChange={() => setEditIva(!editIva)} />
-                </div>
-              </div>
-              <div className="import-table-wrapper">
-                <table className="import-table">
-                  <thead><tr><th></th><th>Pago inicial (una vez)</th><th>Abono mensual</th></tr></thead>
-                  <tbody>
-                    <tr><td>Guardado</td><td>{usd(selectedQuote.total)}</td><td>{usd(selectedQuote.monthly_total)}</td></tr>
-                    <tr>
-                      <td><strong>Con cambios</strong></td>
-                      <td><strong>{usd(preview(editModules, editIva).initialTotal)}</strong></td>
-                      <td><strong>{usd(preview(editModules, editIva).monthlyTotal)}</strong></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p className="dp-muted" style={{ fontSize: 12, margin: 0 }}>
-                Trimestral: {usd(calcPlans(preview(editModules, editIva).monthlyTotal).quarterly)} (1 mes gratis)<br />
-                Anual: {usd(calcPlans(preview(editModules, editIva).monthlyTotal).annual)} (2 meses gratis, ahorrás {usd(calcPlans(preview(editModules, editIva).monthlyTotal).savings)})
-              </p>
-              <p className="dp-muted" style={{ fontSize: 11, margin: 0 }}>
-                El pago inicial incluye la configuración ({usd(settings?.setup ?? 0)}, una sola vez). El abono mensual no{editIva ? ". Totales con IVA 21%." : "."}
-              </p>
-              <div className="modal-actions" style={{ justifyContent: "space-between" }}>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="secondary-button" onClick={() => printDocument("Cotización", `#${selectedQuote.id}`, selectedQuote.client_name, selectedQuote.business_name, selectedQuote)}>Imprimir</button>
-                  {selectedQuote.status === "BORRADOR" && (
-                    <button className="product-action-delete" onClick={() => deleteQuote(selectedQuote.id)}>Borrar</button>
-                  )}
-                </div>
-                <button className="primary-button" onClick={saveQuote} disabled={savingQuote}>{savingQuote ? "Guardando..." : "Guardar cambios"}</button>
-              </div>
-            </div>
-          </div>
-        </div>
+          )}
+          onClose={() => setSelectedQuote(null)}
+          onChanged={load}
+          onDelete={deleteQuote}
+        />
       )}
 
       {/* MODAL NUEVA FACTURA */}
