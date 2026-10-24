@@ -38,7 +38,8 @@ function Complejos() {
   const [params, setParams] = useSearchParams();
   const [systems, setSystems] = useState<SystemItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"activos" | "inactivos">("activos");
+  const [tab, setTab] = useState<"activos" | "inactivos" | "locales">("activos");
+  const [localIds, setLocalIds] = useState<number[]>([]);
   const [search, setSearch] = useState("");
 
   // alta
@@ -87,6 +88,7 @@ function Complejos() {
     try {
       const list = await adminApi<SystemItem[]>("/admin/systems");
       setSystems(list);
+      adminApi<{ ids: number[] }>("/admin/local-systems").then((r) => setLocalIds(r.ids)).catch(() => {});
       return list;
     } catch {
       return [];
@@ -246,13 +248,14 @@ function Complejos() {
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     return systems
-      .filter((s) => (tab === "activos" ? !s.archived : s.archived))
+      .filter((s) => (tab === "locales" ? localIds.includes(s.id) : localIds.includes(s.id) ? false : tab === "activos" ? !s.archived : s.archived))
       .filter((s) => !q || [s.name, s.city, s.slug].some((v) => (v || "").toLowerCase().includes(q)));
-  }, [systems, tab, search]);
+  }, [systems, localIds, tab, search]);
 
   const counts = {
-    activos: systems.filter((s) => !s.archived).length,
-    inactivos: systems.filter((s) => s.archived).length,
+    activos: systems.filter((s) => !s.archived && !localIds.includes(s.id)).length,
+    inactivos: systems.filter((s) => s.archived && !localIds.includes(s.id)).length,
+    locales: systems.filter((s) => localIds.includes(s.id)).length,
   };
 
   // ---------------- UI ----------------
@@ -332,6 +335,9 @@ function Complejos() {
           <button className={tab === "inactivos" ? "primary-button" : "secondary-button"} onClick={() => setTab("inactivos")}>
             Inactivos ({counts.inactivos})
           </button>
+          <button className={tab === "locales" ? "primary-button" : "secondary-button"} onClick={() => setTab("locales")}>
+            Comprados · locales ({counts.locales})
+          </button>
         </div>
         <input className="dp-search" placeholder="Buscar por nombre, ciudad o link…" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
@@ -345,11 +351,11 @@ function Complejos() {
           <p>Creá el primero y se genera su usuario administrador.</p>
         </div>
       ) : visible.length === 0 ? (
-        <div className="products-empty"><p>No hay complejos {tab} que coincidan.</p></div>
+        <div className="products-empty"><p>No hay complejos {tab === "locales" ? "comprados (locales)" : tab} que coincidan.</p></div>
       ) : (
         <div className="dp-systems-grid">
           {visible.map((s) => {
-            const st = systemStatus(s);
+            const st = localIds.includes(s.id) ? { label: "Comprado · local", tone: (s.archived ? "off" : "ok") as ReturnType<typeof systemStatus>["tone"] } : systemStatus(s);
             const sports = splitList(s.sports);
             const mods = splitList(s.enabled_modules);
             return (
@@ -371,8 +377,8 @@ function Complejos() {
                 </div>
 
                 <div className="dp-system-foot">
-                  <span>{s.client_price ? `${money(s.client_price)}/mes` : "Sin precio"}</span>
-                  <span>{s.payment_due_date ? `Vence ${shortDate(s.payment_due_date)}` : PAYMENT_STATUS_LABELS[s.payment_status] || s.payment_status}</span>
+                  <span>{localIds.includes(s.id) ? "Pago único" : s.client_price ? `${money(s.client_price)}/mes` : "Sin precio"}</span>
+                  <span>{localIds.includes(s.id) ? "Licencia de por vida" : s.payment_due_date ? `Vence ${shortDate(s.payment_due_date)}` : PAYMENT_STATUS_LABELS[s.payment_status] || s.payment_status}</span>
                 </div>
               </div>
             );

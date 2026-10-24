@@ -52,7 +52,7 @@ export default function QuoteFlowModal({ quote, api, fmt, brandName, renderModul
   const [calc, setCalc] = useState<any>(null);
   const [busy, setBusy] = useState<string>("");
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const [welcome, setWelcome] = useState<{ email: string; password: string; mail_enviado: boolean; mail_error: string; sin_modulos: boolean } | null>(null);
+  const [welcome, setWelcome] = useState<{ email: string; password: string; mail_enviado: boolean; mail_error: string; sin_modulos: boolean; local?: boolean; instalador?: { code: string; uninstall_key: string; link: string; ok: boolean; error: string } | null } | null>(null);
   const seq = useRef(0);
 
   function body() {
@@ -105,8 +105,9 @@ export default function QuoteFlowModal({ quote, api, fmt, brandName, renderModul
          <p style="margin:4px 0">Subtotal: ${fmt(sub)}</p>${d.apply_iva ? `<p style="margin:4px 0">IVA 21%: ${fmt(iv)}</p>` : ""}<p style="margin:4px 0"><b>Total pago inicial: ${fmt(d.total)}</b></p>
          <p style="margin:12px 0 2px;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#666">Abono mensual (desde el segundo mes)</p>
          <p style="margin:4px 0">Subtotal: ${fmt(d.monthly_subtotal)}</p>${d.apply_iva ? `<p style="margin:4px 0">IVA 21%: ${fmt(d.monthly_iva)}</p>` : ""}<p style="margin:4px 0"><b>Total por mes: ${fmt(d.monthly_total)}</b></p>`;
-    return `<div style="font-family:Arial,sans-serif;max-width:680px;margin:auto;padding:24px;color:#222">
-      <h1 style="font-size:22px;margin:0 0 2px">${esc(brandName)} · Cotización</h1>
+    const mail = !!d.__mail;       // en el mail, el título y el pie los pone el marco del sistema
+    return `<div style="${mail ? "" : "font-family:Arial,sans-serif;max-width:680px;margin:auto;padding:24px;"}color:#222">
+      ${mail ? "" : `<h1 style="font-size:22px;margin:0 0 2px">${esc(brandName)} · Cotización</h1>`}
       <p style="margin:0 0 18px;color:#666;font-size:12px">N° #${d.id} · ${new Date().toLocaleDateString("es-AR")}</p>
       <p style="margin:4px 0;font-size:13px"><b>Cliente:</b> ${esc(d.client_name)}</p>
       <p style="margin:4px 0;font-size:13px"><b>Negocio:</b> ${esc(d.business_name)}</p>
@@ -114,7 +115,7 @@ export default function QuoteFlowModal({ quote, api, fmt, brandName, renderModul
       ${unico ? `<p style="margin:4px 0;font-size:13px"><b>Forma de uso:</b> un solo pago, en una única PC (datos locales, sin internet)</p>` : `<p style="margin:4px 0;font-size:13px"><b>Forma de uso:</b> mensual, en la nube (web y app conectadas)</p>`}
       <table style="width:100%;border-collapse:collapse;margin-top:16px"><tr><th style="${th}">Concepto</th><th style="${th};text-align:right">Importe</th></tr>${filas.join("")}</table>
       <div style="margin-top:14px;text-align:right">${totales}</div>
-      <p style="margin-top:24px;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#666;text-align:center">Documento no válido como factura · ${esc(brandName)} by Mezztt${d.__mail ? "<br>Para aceptar la cotización o hacer cambios, respondé este mail." : ""}</p></div>`;
+      <p style="margin-top:24px;padding-top:10px;border-top:1px solid #ccc;font-size:11px;color:#666;text-align:center">Documento no válido como factura${mail ? "<br>Para aceptar la cotización o hacer cambios, respondé este mail." : ` · ${esc(brandName)} by Mezztt`}</p></div>`;
   }
 
   function imprimir(d: any) {
@@ -149,7 +150,7 @@ export default function QuoteFlowModal({ quote, api, fmt, brandName, renderModul
     run("aceptar", async () => {
       const r = await api(`/admin/quotes/${q.id}/aceptar`, { method: "POST" });
       setQ(r.quote); await onChanged();
-      setWelcome({ email: r.email, password: r.password, mail_enviado: r.mail_enviado, mail_error: r.mail_error, sin_modulos: r.sin_modulos });
+      setWelcome({ email: r.email, password: r.password, mail_enviado: r.mail_enviado, mail_error: r.mail_error, sin_modulos: r.sin_modulos, local: usage === "pago_unico", instalador: r.instalador });
     });
   }
 
@@ -166,7 +167,7 @@ export default function QuoteFlowModal({ quote, api, fmt, brandName, renderModul
     if (!confirm("Se genera una contraseña nueva (la anterior deja de servir) y se envía por mail al cliente. ¿Continuar?")) return;
     run("accesos", async () => {
       const r = await api(`/admin/quotes/${q.id}/accesos`, { method: "POST", body: { enviar: true } });
-      setWelcome({ email: r.email, password: r.password, mail_enviado: true, mail_error: "", sin_modulos: false });
+      setWelcome({ email: r.email, password: r.password, mail_enviado: true, mail_error: "", sin_modulos: false, local: usage === "pago_unico", instalador: r.instalador });
     });
   }
 
@@ -288,8 +289,15 @@ export default function QuoteFlowModal({ quote, api, fmt, brandName, renderModul
               <div className="form-group"><label>Usuario</label><p style={{ fontFamily: "monospace" }}>{welcome.email}</p></div>
               <div className="form-group"><label>Contraseña (solo se ve ahora)</label><p style={{ fontFamily: "monospace", fontSize: 22, letterSpacing: 2, margin: 0 }}>{welcome.password}</p></div>
               <button className="secondary-button" onClick={() => { try { navigator.clipboard.writeText(`Usuario: ${welcome.email}\nContraseña: ${welcome.password}`); } catch { /* sin portapapeles */ } }}>Copiar usuario y contraseña</button>
+              {welcome.instalador && welcome.instalador.code && (
+                <div className="form-group"><label>Instalador {welcome.local ? "local (pago único)" : "de la app"}</label>
+                  <p style={{ fontFamily: "monospace", margin: 0 }}>Código: {welcome.instalador.code}</p>
+                  <p style={{ fontFamily: "monospace", margin: 0 }}>Clave para desinstalar (solo se ve ahora): {welcome.instalador.uninstall_key}</p>
+                  {!welcome.instalador.ok && <p style={{ margin: "6px 0 0", fontSize: 12, color: "#b3261e" }}>El mail salió sin link de descarga: {welcome.instalador.error}</p>}
+                </div>)}
+              {welcome.instalador && !welcome.instalador.code && <p style={{ margin: 0, fontSize: 12, color: "#b3261e" }}>No se pudo crear el instalador: {welcome.instalador.error}. Generalo desde «App de escritorio» en el sistema.</p>}
               {welcome.mail_enviado
-                ? <p style={{ margin: 0, fontSize: 13, color: "#1d7a46" }}>Le enviamos el mail de bienvenida a {welcome.email} con la dirección, los datos y cómo cambiar la contraseña.</p>
+                ? <p style={{ margin: 0, fontSize: 13, color: "#1d7a46" }}>Le enviamos el mail de bienvenida a {welcome.email} con {welcome.local ? "el instalador de la app local y cómo instalarla" : "el link de la web, el usuario, la contraseña, la app para la PC y cómo cambiar la contraseña"}.</p>
                 : <p style={{ margin: 0, fontSize: 13, color: "#b3261e" }}>El sistema se creó, pero no se pudo enviar el mail de bienvenida: {welcome.mail_error}. Pasale los datos de arriba o usá «Enviar accesos nuevos al cliente».</p>}
               {welcome.sin_modulos && <p style={{ margin: 0, fontSize: 12 }}>La cotización no tenía módulos: activalos desde el panel del sistema.</p>}
               <div className="modal-actions"><button className="primary-button" onClick={() => setWelcome(null)}>Listo</button></div>
