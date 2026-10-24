@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AdminBajas } from "../../components/ServiceCancel";
 import { adminApi, money, shortDate, MODULE_LABELS, ALL_MODULES } from "../../config";
 
 interface Overview {
@@ -93,6 +94,8 @@ function AdminHome() {
           <small>Más de 10 días después del vencimiento</small>
         </div>
       </div>
+
+      <AdminBajas />
 
       <div className="dp-grid-2">
         <div className="dashboard-section">

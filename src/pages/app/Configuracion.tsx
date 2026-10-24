@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { startTour } from "../../components/tour/Tour";
+import { BajaCard } from "../../components/ServiceCancel";
 import type { FormEvent } from "react";
 import {
   appApi, getSessionUser, splitList, money, computePrice, SPORT_LABELS, USER_KEY,
@@ -399,6 +400,8 @@ function Configuracion() {
           </form>
         </div>
       )}
+
+      {getSessionUser()?.role === "ADMINISTRADOR" && <div style={{ marginTop: 16 }}><BajaCard /></div>}
     </section>
   );
 }

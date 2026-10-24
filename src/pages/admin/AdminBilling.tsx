@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import BuzonCotizaciones from "../../components/BuzonCotizaciones";
+import { API_URL as BUZON_API } from "../../config";
 import { adminApi, usd, shortDate, splitList, calcPricing, calcPlans, ALL_MODULES, BILLABLE_MODULES, MODULE_LABELS } from "../../config";
 import type { BillingSettings, SystemItem } from "../../config";
 
@@ -16,6 +18,14 @@ function ModuleCheckbox({ label, checked, onChange }: { label: string; checked: 
 
 function toggle(list: string[], m: string) {
   return list.includes(m) ? list.filter((x) => x !== m) : [...list, m];
+}
+
+// Datos que llegan en el mensaje de la solicitud web: forma de uso (mensual o un solo pago) y POS pedido
+function quoteTags(notes?: string | null) {
+  const n = String(notes || "");
+  const uso = (n.match(/Forma de uso: ([^·]+)/) || [])[1];
+  const pos = (n.match(/POS: ([^·]+)/) || [])[1];
+  return { uso: uso ? uso.trim() : "", pos: pos ? pos.trim() : "" };
 }
 
 function AdminBilling() {
@@ -257,6 +267,8 @@ function AdminBilling() {
         <button className={tab === "facturas" ? "primary-button" : "secondary-button"} onClick={() => setTab("facturas")}>Facturas</button>
       </div>
 
+      {tab === "cotizaciones" && <BuzonCotizaciones sistema="deportia" apiUrl={BUZON_API} onDone={load} />}
+
       {tab === "cotizaciones" && (
         <>
           <div className="dashboard-section" style={{ marginBottom: 20 }}>
@@ -318,6 +330,7 @@ function AdminBilling() {
                         <td>
                           {q.business_name}
                           {String(q.notes || "").startsWith("Pedido desde la web") && <span className="dp-badge dp-badge-enviada" style={{ marginLeft: 6 }}>Web</span>}
+                          {(() => { const tg = quoteTags(q.notes); return (<>{tg.uso && <span className="dp-badge dp-badge-enviada" style={{ marginLeft: 6 }}>{tg.uso.startsWith("Mensual") ? "Mensual" : "Un solo pago"}</span>}{tg.pos && <span className="dp-badge dp-badge-aceptada" style={{ marginLeft: 6 }}>POS</span>}</>); })()}
                           <br /><small className="dp-muted">{q.client_name}</small>
                         </td>
                         <td style={{ fontSize: 11 }}>{splitList(q.modules).map((m) => MODULE_LABELS[m] || m).join(", ") || "—"}</td>
@@ -382,6 +395,7 @@ function AdminBilling() {
             </div>
             <div className="product-form">
               <div className="form-group"><label>Cliente</label><p>{selectedQuote.client_name}{selectedQuote.email ? ` — ${selectedQuote.email}` : ""}{selectedQuote.phone ? ` — ${selectedQuote.phone}` : ""}</p></div>
+              {(() => { const tg = quoteTags(selectedQuote.notes); return (<>{tg.uso && <div className="form-group"><label>Forma de uso</label><p>{tg.uso}</p></div>}{tg.pos && <div className="form-group"><label>POS pedido</label><p>{tg.pos}</p></div>}</>); })()}
               {selectedQuote.notes && (
                 <div className="form-group"><label>Mensaje</label><p style={{ whiteSpace: "pre-wrap" }}>{selectedQuote.notes}</p></div>
               )}

@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL, ADMIN_TOKEN_KEY, TOKEN_KEY, USER_KEY } from "../config";
 import CourtIcon from "../components/CourtIcon";
+import { BajaLoginLink } from "../components/ServiceCancel";
 import { BrandWordmark, InstagramLink, PoweredBy, useBrandLinks } from "../components/Brand";
 
 function Login() {
@@ -102,7 +103,7 @@ function Login() {
           <InstagramLink href={links.system_instagram_url} label="Seguí a Deportia en Instagram" />
         </div>
 
-        <div className="login-footer"><PoweredBy /></div>
+        <div className="login-footer"><PoweredBy /><BajaLoginLink className="sc-link sc-login-link" /></div>
       </section>
     </main>
   );

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { MailCompose } from "./MailCenter";
+import AppDesktop from "./AppDesktop";
 import type { FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -11,7 +13,7 @@ import { RUBROS, RUBRO_SPORTS } from "../../rubros";
 
 interface SystemUser { id: number; name: string; email: string; role: string; active: boolean }
 
-type DetailTab = "info" | "pagos" | "usuarios" | "seguridad";
+type DetailTab = "info" | "pagos" | "usuarios" | "mail" | "app" | "seguridad";
 
 const EMPTY_FORM = {
   company_name: "", slug: "", email: "", phone: "", address: "", city: "",
@@ -500,9 +502,9 @@ function Complejos() {
             </div>
 
             <div className="product-actions" style={{ marginBottom: 20 }}>
-              {(["info", "pagos", "usuarios", "seguridad"] as DetailTab[]).map((t) => (
+              {(["info", "pagos", "usuarios", "mail", "app", "seguridad"] as DetailTab[]).map((t) => (
                 <button key={t} className={detailTab === t ? "primary-button" : "secondary-button"} onClick={() => setDetailTab(t)}>
-                  {{ info: "Info", pagos: `Pagos (${payments.length})`, usuarios: `Usuarios (${users.length})`, seguridad: "Seguridad" }[t]}
+                  {{ info: "Info", pagos: `Pagos (${payments.length})`, usuarios: `Usuarios (${users.length})`, mail: "Enviar mail", app: "App de escritorio", seguridad: "Seguridad" }[t]}
                 </button>
               ))}
             </div>
@@ -622,6 +624,8 @@ function Complejos() {
               </div>
             )}
 
+            {detailTab === "mail" && <MailCompose companyId={detail.id} status={(detail as any).payment_status} dueDate={(detail as any).payment_due_date} />}
+          {detailTab === "app" && <AppDesktop companyId={detail.id} users={users} />}
             {detailTab === "seguridad" && (
               <div className="product-form">
                 <p className="dp-danger-text">

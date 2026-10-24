@@ -38,6 +38,11 @@ const has = (t: string, ...words: string[]) => words.some((w) => t.includes(w));
 
 const HELP: { keys: string[]; text: string; to?: string; label?: string }[] = [
   {
+    keys: ["dar de baja el servicio", "dar de baja el sistema", "baja del servicio", "baja del sistema", "darme de baja", "cancelar el servicio", "cancelar mi cuenta", "dejar de usar el sistema", "retirar la baja", "constancia de baja"],
+    text: "Para dar de baja el servicio entrá a Configuración y tocá «Dar de baja el servicio» (también está al pie de la pantalla de ingreso). Lo hace el administrador, sin motivo y en dos pasos, y te da una constancia BAJA-AAAA-NNNN con fecha y hora para copiar o imprimir. El sistema NO se corta ese día: sigue funcionando hasta el final del período que ya pagaste, y antes de esa fecha podés «Retirar la baja». Después se desactiva y tus datos se conservan.",
+    to: "/app/configuracion", label: "Ir a Configuración",
+  },
+  {
     keys: ["codigo", "check", "llegada", "llego", "llegaron", "confirmar"],
     text: "Para confirmar que llegaron: abrí el turno (desde Canchas o Turnos, o buscando el código arriba), pedile el código al jugador y fijate que coincida con el que ves. Tocá «Confirmar llegada» y la cancha pasa a rojo (en uso). Se puede confirmar desde 30 min antes.",
     to: "/app/canchas", label: "Ir a Canchas",
@@ -98,6 +103,20 @@ const HELP: { keys: string[]; text: string; to?: string; label?: string }[] = [
 function Assistant({ user }: { user: SessionUser | null }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  // en el celular el botón se esconde al bajar la pantalla (así no tapa los botones de acción del final) y vuelve al subir
+  const [tuck, setTuck] = useState(false);
+  useEffect(() => {
+    const last = new WeakMap<EventTarget, number>();
+    const onScroll = (e: Event) => {
+      const t = e.target as HTMLElement | Document;
+      const y = t instanceof Document ? window.scrollY : (t as HTMLElement).scrollTop;
+      const prev = last.get(t);
+      if (prev === undefined) { last.set(t, y); return; }
+      if (Math.abs(y - prev) > 6) { setTuck(y > prev && y > 60); last.set(t, y); }
+    };
+    document.addEventListener("scroll", onScroll, true);
+    return () => document.removeEventListener("scroll", onScroll, true);
+  }, []);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -250,7 +269,7 @@ function Assistant({ user }: { user: SessionUser | null }) {
   return (
     <>
       {!open && (
-        <button className="dp-assist-fab" onClick={() => setOpen(true)} aria-label="Abrir asistente">
+        <button className={`dp-assist-fab ${tuck ? "is-tucked" : ""}`} onClick={() => setOpen(true)} aria-label="Abrir asistente">
           <span className="dp-assist-fab-icon">💬</span>
           <span className="dp-assist-fab-text">Asistente</span>
         </button>

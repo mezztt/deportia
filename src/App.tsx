@@ -13,6 +13,7 @@ import Complejos from "./pages/admin/Complejos";
 import Pagos from "./pages/admin/Pagos";
 import AdminBilling from "./pages/admin/AdminBilling";
 import AdminSettings from "./pages/admin/AdminSettings";
+import MailCenter from "./pages/admin/MailCenter";
 
 // Sistema del complejo
 import ClientLayout from "./pages/app/ClientLayout";
@@ -52,6 +53,7 @@ function App() {
           <Route path="/admin/complejos" element={<Complejos />} />
           <Route path="/admin/pagos" element={<Pagos />} />
           <Route path="/admin/facturacion" element={<AdminBilling />} />
+          <Route path="/admin/correos" element={<MailCenter />} />
           <Route path="/admin/configuracion" element={<AdminSettings />} />
         </Route>
 

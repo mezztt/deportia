@@ -12,6 +12,7 @@ const NAV = [
   { path: "/admin/complejos", icon: "systems", label: "Complejos" },
   { path: "/admin/pagos", icon: "cash", label: "Pagos" },
   { path: "/admin/facturacion", icon: "invoice", label: "Facturación" },
+  { path: "/admin/correos", icon: "mail", label: "Correos" },
   { section: "SISTEMA" },
   { path: "/admin/configuracion", icon: "settings", label: "Configuración" },
 ] as const;

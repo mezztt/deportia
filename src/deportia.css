@@ -2318,3 +2318,10 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px
   .dp-bar-label { font-size: 10px; }
   .dp-bar-col:not(:nth-child(5n+1)) .dp-bar-label { visibility: hidden; }
 }
+
+/* Asistente en celular: se esconde al bajar (no tapa botones de acción) y con una ventana abierta */
+@media (max-width: 860px) {
+  .dp-assist-fab { transition: transform .2s ease, opacity .2s ease; }
+  .dp-assist-fab.is-tucked { transform: translateY(calc(100% + 96px)); opacity: 0; pointer-events: none; }
+  body:has(.modal-overlay) .dp-assist-fab { display: none; }
+}

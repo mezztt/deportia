@@ -1,6 +1,6 @@
 // Configuración compartida de Deportia
 // En local usa el backend de tu PC. Online se define VITE_API_URL al compilar (ver .env.example).
-export const API_URL = (import.meta.env.VITE_API_URL || "https://api-deportia.mezztt.site").replace(/\/$/, "");
+export const API_URL = ((typeof window !== "undefined" && (window as any).mezzttApp?.apiUrl) || import.meta.env.VITE_API_URL || "http://127.0.0.1:8020").replace(/\/$/, "");
 
 export const APP_NAME = "Deportia";
 export const APP_VERSION = "1.0.0";
@@ -229,6 +229,8 @@ export interface SystemItem {
   billed: boolean;
   apply_iva: boolean;
   archived: boolean;
+  cancel_requested_at?: string | null;   // baja del servicio pedida por la empresa
+  service_end_date?: string | null;       // el sistema funciona hasta esta fecha
   notes: string | null;
   created_at: string;
 }
@@ -252,6 +254,7 @@ export function isOverdue(s: Pick<SystemItem, "payment_due_date" | "payment_stat
 }
 
 export function systemStatus(s: SystemItem): { label: string; tone: "ok" | "warn" | "off" } {
+  if (s.service_end_date && !s.archived) return { label: `Baja solicitada · hasta ${s.service_end_date.slice(0, 10).split("-").reverse().join("/")}`, tone: "warn" };
   if (s.archived) return { label: "Inactivo", tone: "off" };
   if (isOverdue(s)) return { label: "Pago atrasado", tone: "warn" };
   return { label: "Activo", tone: "ok" };

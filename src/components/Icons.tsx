@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 const PATHS: Record<string, ReactNode> = {
+  mail: <><rect x="3.5" y="5.5" width="17" height="13" rx="2.5" /><path d="m4.2 8.2 7.8 5.6 7.8-5.6" /></>,
   home: <><path d="M4 11.5 12 4l8 7.5" /><path d="M6 10v9h12v-9" /><path d="M10 19v-5h4v5" /></>,
   orders: <><rect x="5" y="4" width="14" height="17" rx="2.5" /><path d="M9 4.5V3h6v1.5" /><path d="M9 10h6M9 14h6M9 18h3" /></>,
   deliveries: <><path d="M3 6.5h11v9.5H3z" /><path d="M14 9.5h3.5L21 13v3h-7" /><circle cx="7.5" cy="17.5" r="1.8" /><circle cx="17" cy="17.5" r="1.8" /></>,
